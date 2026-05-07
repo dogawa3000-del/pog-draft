@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POG ドラフト会議</title>
+
+<!-- ============================================================
+  🔧 STEP 1: Firebaseの設定をここに貼り付けてください
+  Firebase Console → プロジェクト設定 → マイアプリ → firebaseConfig
+  下の「YOUR_...」の部分を自分のプロジェクトの値に置き換えてください
+============================================================ -->
+<script>
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyDSNM0bsf17epHptSKQgmKbckmWmyG_eGs",
+  authDomain:        "pogdraft2026-2027.firebaseapp.com",
+  databaseURL:       "https://pogdraft2026-2027-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "pogdraft2026-2027",
+  storageBucket:     "pogdraft2026-2027.firebasestorage.app",
+  messagingSenderId: "408473005674",
+  appId:             "1:408473005674:web:762cccb0c4e70b9c3f2413"
+};
+</script>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent:  #16c79a;
+    --accent2: #e94560;
+    --bg:      #f4f6fb;
+    --surface: #ffffff;
+    --muted:   #6b7280;
+    --border:  #e5e7eb;
+    --radius:  12px;
+    --shadow:  0 2px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', sans-serif;
+    background: var(--bg); color: var(--primary);
+    min-height: 100vh; padding: 16px;
+  }
+  .app { max-width: 720px; margin: 0 auto; }
+
+  /* ヘッダー */
+  .header { text-align: center; padding: 24px 0 16px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .header h1 span { color: var(--accent); }
+  .header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+  /* カード */
+  .card {
+    background: var(--surface); border-radius: var(--radius);
+    border: 1px solid var(--border); box-shadow: var(--shadow);
+    padding: 20px; margin-bottom: 16px;
+  }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+
+  /* フォーム */
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  input[type="text"], input[type="password"], select {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 15px; font-family: inherit; color: var(--primary);
+    background: #fafafa; transition: border-color 0.15s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); background: #fff; }
+
+  /* ボタン */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid transparent; transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: #12a880; }
+  .btn-secondary { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .btn-danger { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+  .btn-outline { background: transparent; color: var(--primary); border-color: var(--border); }
+  .btn-outline:hover { background: var(--bg); }
+  .btn-full { width: 100%; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+  /* タブ */
+  .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+  .tab-btn {
+    flex: 1; padding: 10px; font-size: 14px; font-weight: 600;
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    margin-bottom: -2px; font-family: inherit; transition: all 0.15s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ルームコード */
+  .room-code {
+    font-size: 42px; font-weight: 800; letter-spacing: 10px; text-align: center;
+    color: var(--primary); padding: 18px; background: var(--bg);
+    border-radius: var(--radius); margin: 10px 0;
+    font-variant-numeric: tabular-nums; border: 2px dashed var(--border);
+  }
+
+  /* 参加者チップ */
+  .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 12px 0; }
+  .player-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 12px; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--bg);
+    font-size: 13px;
+  }
+  .player-chip.empty { opacity: 0.4; }
+  .avatar {
+    width: 30px; height: 30px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+
+  /* バッジ */
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .badge-green  { background: #d1fae5; color: #065f46; }
+  .badge-blue   { background: #dbeafe; color: #1e40af; }
+  .badge-yellow { background: #fef3c7; color: #92400e; }
+  .badge-red    { background: #fee2e2; color: #991b1b; }
+
+  /* ラウンドドット */
+  .round-dots { display: flex; gap: 5px; flex-wrap: wrap; }
+  .round-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
+  .round-dot.done    { background: var(--accent); }
+  .round-dot.current { background: var(--primary); }
+
+  /* 指名入力 */
+  .bid-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .bid-row:last-child { border-bottom: none; }
+  .bid-name { width: 72px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+
+  /* 公開結果 */
+  .result-item {
+    padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
+    border: 1.5px solid; font-size: 13px;
+  }
+  .result-ok   { background: #f0fdf4; border-color: #86efac; }
+  .result-ng   { background: #fff1f2; border-color: #fda4af; }
+  .result-horse { font-weight: 700; font-size: 15px; }
+  .result-bidders { color: var(--muted); margin-top: 2px; }
+
+  /* 競合 */
+  .conflict-box { background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 10px; padding: 14px; margin-bottom: 8px; }
+  .conflict-box h4 { font-size: 13px; color: #b91c1c; margin-bottom: 8px; }
+  .conflict-winner-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  /* ロスター */
+  .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .roster-col { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .roster-head { padding: 7px 8px; font-size: 12px; font-weight: 700; text-align: center; background: var(--bg); }
+  .roster-row { padding: 5px 8px; font-size: 12px; border-top: 1px solid var(--border); }
+  .roster-row.empty { color: #c4c4c4; font-style: italic; }
+
+  /* 待機アニメ */
+  .waiting-icon { font-size: 36px; text-align: center; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* 進捗表示 */
+  .submitted-progress {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  /* スクリーン */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* トースト */
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--primary); color: #fff;
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    transition: transform 0.3s; z-index: 999; white-space: nowrap;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* 終了 */
+  .finish-hero { text-align: center; padding: 28px 0 20px; }
+  .finish-hero .trophy { font-size: 56px; }
+  .finish-hero h2 { font-size: 22px; font-weight: 700; margin-top: 10px; }
+  .finish-hero p { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+  /* セットアップ未完了バナー */
+  #setup-warning {
+    background: #fff3cd; border: 1.5px solid #ffc107;
+    border-radius: var(--radius); padding: 14px 18px;
+    font-size: 13px; color: #664d03; margin-bottom: 16px; line-height: 1.7;
+  }
+  #setup-warning strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  #setup-warning code { background: #fff; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<div class="app">
+  <div class="header">
+    <h1>🏇 POG <span>ドラフト</span>会議</h1>
+    <p>リアルタイム対戦ボード</p>
+  </div>
+
+  <!-- Firebaseミス設定の警告 -->
+  <div id="setup-warning" style="display:none">
+    <strong>⚠️ Firebase の設定が必要です</strong>
+    このファイルの先頭にある <code>FIREBASE_CONFIG</code> の <code>YOUR_...</code> の部分を
+    自分のFirebaseプロジェクトの値に書き換えてください。<br>
+    設定方法は別紙の手順書をご参照ください。
+  </div>
+
+  <!-- ① ロビー画面 -->
+  <div id="screen-lobby" class="screen active">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tab-create" onclick="switchTab('create')">ルームを作成</button>
+        <button class="tab-btn"        id="tab-join"   onclick="switchTab('join')">ルームに参加</button>
+      </div>
+
+      <div id="pane-create">
+        <div class="field">
+          <label>あなたの名前</label>
+          <input type="text" id="create-name" placeholder="例：田中" maxlength="12">
+        </div>
+        <div class="field">
+          <label>参加人数（2〜10名）</label>
+          <select id="create-count">
+            <option value="2">2名</option><option value="3">3名</option>
+            <option value="4">4名</option><option value="5">5名</option>
+            <option value="6" selected>6名</option><option value="7">7名</option>
+            <option value="8">8名</option><option value="9">9名</option>
+            <option value="10">10名</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>巡回数（ラウンド数）</label>
+          <select id="create-rounds">
+            <option value="5">5巡</option><option value="8">8巡</option>
+            <option value="10" selected>10巡</option><option value="12">12巡</option>
+            <option value="15">15巡</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="createRoom()">🎯 ルームを作成する</button>
+      </div>
+
+      <div id="pane-join" style="display:none">
+        <div class="field">
+          <label>あなたの名前</label>
+          <input type="text" id="join-name" placeholder="例：鈴木" maxlength="12">
+        </div>
+        <div class="field">
+          <label>ルームコード（4桁）</label>
+          <input type="text" id="join-code" placeholder="1234" maxlength="4"
+            style="text-align:center;font-size:26px;font-weight:700;letter-spacing:8px">
+        </div>
+        <button class="btn btn-primary btn-full" onclick="joinRoom()">🚪 参加する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 待機室 -->
+  <div id="screen-waiting" class="screen">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div class="card-title" style="margin:0">ルームコード</div>
+        <span class="badge badge-yellow" id="waiting-count-badge">0/6名</span>
+      </div>
+      <div class="room-code" id="waiting-code">----</div>
+      <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:14px">
+        📤 このコードを参加者全員に共有してください
+      </p>
+      <div class="players-grid" id="waiting-players"></div>
+      <div id="host-controls" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:10px">全員が揃ったらドラフトを開始できます</p>
+        <button class="btn btn-secondary btn-full" id="btn-start" onclick="hostStartDraft()">
+          ▶️ ドラフト開始
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ ドラフト画面 -->
+  <div id="screen-draft" class="screen">
+    <!-- ラウンドヘッダー -->
+    <div class="card" style="padding:14px 20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <span style="font-size:17px;font-weight:700" id="round-label">第1巡目</span>
+          <span class="badge badge-blue" style="margin-left:8px" id="phase-badge">入力中</span>
+        </div>
+        <div class="round-dots" id="round-dots"></div>
+      </div>
+    </div>
+
+    <!-- アクションエリア -->
+    <div class="card" id="action-card">
+      <!-- 入力フェーズ（未提出） -->
+      <div id="phase-input">
+        <div class="card-title">母馬を指名してください</div>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:12px;cursor:pointer">
+          <input type="checkbox" id="mask-toggle" onchange="toggleMask()">
+          入力文字を隠す（周りに見えないように）
+        </label>
+        <div id="bid-input-area"></div>
+        <div id="bid-progress" style="font-size:12px;color:var(--muted);margin:10px 0"></div>
+        <button class="btn btn-primary btn-full" onclick="submitBid()" id="btn-submit">
+          ✅ 指名を確定する
+        </button>
+      </div>
+
+      <!-- 入力フェーズ（提出済み） -->
+      <div id="phase-waiting" style="display:none">
+        <div class="waiting-icon">⏳</div>
+        <p style="text-align:center;font-size:14px;font-weight:600;margin:12px 0 4px" id="waiting-msg">他の参加者の入力を待っています</p>
+        <div class="submitted-progress" id="submitted-progress"></div>
+      </div>
+
+      <!-- 公開フェーズ -->
+      <div id="phase-reveal" style="display:none">
+        <div class="card-title" id="reveal-title">🎊 一斉公開！</div>
+        <div id="reveal-results"></div>
+        <div id="conflict-area"></div>
+        <button class="btn btn-secondary btn-full" id="btn-next" onclick="proceedNext()" style="margin-top:14px;display:none">
+          次のラウンドへ →
+        </button>
+      </div>
+    </div>
+
+    <!-- ロスターボード -->
+    <div class="card">
+      <div class="card-title">📋 指名状況ボード</div>
+      <div class="roster-grid" id="roster-board"></div>
+    </div>
+  </div>
+
+  <!-- ④ 終了画面 -->
+  <div id="screen-finish" class="screen">
+    <div class="card">
+      <div class="finish-hero">
+        <div class="trophy">🏆</div>
+        <h2>ドラフト終了！</h2>
+        <p>お疲れ様でした。最終ロスターをご確認ください。</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">最終ロスター</div>
+      <div class="roster-grid" id="final-roster"></div>
+    </div>
+    <button class="btn btn-outline btn-full" onclick="resetApp()">🔄 最初に戻る</button>
+  </div>
+</div><!-- /app -->
+
+<script>
+// ── カラーパレット ──────────────────────────────────────────
+const COLORS = ['#16c79a','#e94560','#4f8ef7','#f5a623','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
+
+// ── 状態 ──────────────────────────────────────────────────
+let me = { name: '', roomCode: '', isHost: false };
+let db = null;
+let roomRef = null;
+let unsubscribe = null;
+let lastSnapshot = null;
+
+// ── Firebase 初期化 ────────────────────────────────────────
+function initFirebase() {
+  if (FIREBASE_CONFIG.apiKey === 'AIzaSyDSNM0bsf17epHptSKQgmKbckmWmyG_eGs') {
+    document.getElementById('setup-warning').style.display = 'block';
+    return false;
+  }
+  try {
+    const app = firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.database(app);
+    return true;
+  } catch(e) {
+    document.getElementById('setup-warning').style.display = 'block';
+    return false;
+  }
+}
+
+// ── ユーティリティ ─────────────────────────────────────────
+function genCode() { return String(Math.floor(1000 + Math.random() * 9000)); }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function toast(msg, dur=2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+function switchTab(t) {
+  document.getElementById('tab-create').classList.toggle('active', t==='create');
+  document.getElementById('tab-join').classList.toggle('active', t==='join');
+  document.getElementById('pane-create').style.display = t==='create' ? '' : 'none';
+  document.getElementById('pane-join').style.display   = t==='join'   ? '' : 'none';
+}
+
+// ── ルーム作成 ─────────────────────────────────────────────
+async function createRoom() {
+  if (!db) { toast('Firebase が設定されていません'); return; }
+  const name = document.getElementById('create-name').value.trim();
+  if (!name) { toast('名前を入力してください'); return; }
+  const count  = parseInt(document.getElementById('create-count').value);
+  const rounds = parseInt(document.getElementById('create-rounds').value);
+  const code   = genCode();
+
+  const room = {
+    code, hostName: name,
+    playerCount: count, maxRounds: rounds,
+    players: [{ name, color: COLORS[0] }],
+    rosters: { [name]: [] },
+    status: 'waiting',
+    round: 1, phase: 'input',
+    bids: {}, conflicts: [], resolvedConflicts: {}
+  };
+
+  await db.ref('pog/rooms/' + code).set(room);
+  me = { name, roomCode: code, isHost: true };
+  subscribeRoom(code);
+  showScreen('waiting');
+}
+
+// ── ルーム参加 ─────────────────────────────────────────────
+async function joinRoom() {
+  if (!db) { toast('Firebase が設定されていません'); return; }
+  const name = document.getElementById('join-name').value.trim();
+  const code = document.getElementById('join-code').value.trim();
+  if (!name) { toast('名前を入力してください'); return; }
+  if (code.length !== 4) { toast('4桁のコードを入力してください'); return; }
+
+  const snap = await db.ref('pog/rooms/' + code).get();
+  if (!snap.exists()) { toast('ルームが見つかりません'); return; }
+  const room = snap.val();
+  if (room.status !== 'waiting') { toast('このルームはすでに開始しています'); return; }
+  if (room.players.find(p => p.name === name)) { toast('同じ名前の参加者がいます'); return; }
+  if (room.players.length >= room.playerCount) { toast('ルームが満員です'); return; }
+
+  const newPlayers = [...room.players, { name, color: COLORS[room.players.length % COLORS.length] }];
+  const newRosters = { ...room.rosters, [name]: [] };
+  await db.ref('pog/rooms/' + code).update({ players: newPlayers, rosters: newRosters });
+
+  me = { name, roomCode: code, isHost: false };
+  subscribeRoom(code);
+  showScreen('waiting');
+}
+
+// ── リアルタイム購読 ───────────────────────────────────────
+function subscribeRoom(code) {
+  if (unsubscribe) unsubscribe();
+  roomRef = db.ref('pog/rooms/' + code);
+  const handler = snap => {
+    if (!snap.exists()) return;
+    const room = snap.val();
+    const roomStr = JSON.stringify(room);
+    if (roomStr === lastSnapshot) return;
+    lastSnapshot = roomStr;
+    handleRoomUpdate(room);
+  };
+  roomRef.on('value', handler);
+  unsubscribe = () => roomRef.off('value', handler);
+}
+
+// ── ルーム状態の反映 ───────────────────────────────────────
+function handleRoomUpdate(room) {
+  const current = document.querySelector('.screen.active')?.id || '';
+
+  if (room.status === 'waiting') {
+    renderWaiting(room);
+    return;
+  }
+  if (room.status === 'drafting') {
+    if (current !== 'screen-draft') showScreen('draft');
+    renderDraft(room);
+  }
+  if (room.status === 'finished') {
+    showScreen('finish');
+    renderFinalRoster(room);
+    if (unsubscribe) unsubscribe();
+  }
+}
+
+// ── 待機室描画 ─────────────────────────────────────────────
+function renderWaiting(room) {
+  const count = room.players.length;
+  const max   = room.playerCount;
+  document.getElementById('waiting-code').textContent = room.code;
+  document.getElementById('waiting-count-badge').textContent = `${count}/${max}名`;
+
+  const grid = document.getElementById('waiting-players');
+  grid.innerHTML = room.players.map(p =>
+    `<div class="player-chip">
+      <div class="avatar" style="background:${p.color}22;color:${p.color}">${p.name[0]}</div>
+      <span style="font-size:13px">${p.name}</span>
+      ${p.name === room.hostName ? '<span class="badge badge-blue" style="margin-left:auto">主催</span>' : ''}
+    </div>`
+  ).join('') + Array(Math.max(0, max-count)).fill(0).map(() =>
+    `<div class="player-chip empty">
+      <div class="avatar" style="background:#f3f4f6;color:#d1d5db">?</div>
+      <span style="font-size:13px;color:#d1d5db">待機中...</span>
+    </div>`
+  ).join('');
+
+  if (me.isHost) {
+    document.getElementById('host-controls').style.display = '';
+    const btn = document.getElementById('btn-start');
+    btn.disabled = count < max;
+    btn.textContent = count < max ? `▶️ ドラフト開始（あと${max-count}名）` : '▶️ ドラフト開始';
+  }
+}
+
+// ── ドラフト開始（ホストのみ）──────────────────────────────
+async function hostStartDraft() {
+  await roomRef.update({ status: 'drafting', phase: 'input', bids: {}, round: 1 });
+}
+
+// ── ドラフト画面描画 ───────────────────────────────────────
+function renderDraft(room) {
+  // ラウンドドット
+  const dots = document.getElementById('round-dots');
+  dots.innerHTML = Array(room.maxRounds).fill(0).map((_, i) => {
+    const cls = i < room.round-1 ? 'done' : i === room.round-1 ? 'current' : '';
+    return `<div class="round-dot ${cls}"></div>`;
+  }).join('');
+  document.getElementById('round-label').textContent = `第${room.round}巡目`;
+
+  // フェーズ
+  const bids = room.bids || {};
+  const mySubmitted = bids[me.name] !== undefined;
+
+  document.getElementById('phase-input').style.display   = 'none';
+  document.getElementById('phase-waiting').style.display = 'none';
+  document.getElementById('phase-reveal').style.display  = 'none';
+
+  if (room.phase === 'input') {
+    document.getElementById('phase-badge').textContent = '入力中';
+    document.getElementById('phase-badge').className = 'badge badge-blue';
+    if (!mySubmitted) {
+      document.getElementById('phase-input').style.display = '';
+      renderBidInput(room);
+    } else {
+      document.getElementById('phase-waiting').style.display = '';
+      renderWaitingProgress(room);
+    }
+  } else if (room.phase === 'reveal' || room.phase === 'conflict') {
+    document.getElementById('phase-badge').textContent = room.phase === 'conflict' ? '競合解決中' : '公開中';
+    document.getElementById('phase-badge').className = 'badge ' + (room.phase === 'conflict' ? 'badge-red' : 'badge-green');
+    document.getElementById('phase-reveal').style.display = '';
+    renderReveal(room);
+  }
+
+  renderRosterBoard(room, 'roster-board');
+}
+
+// ── 指名入力描画 ───────────────────────────────────────────
+function renderBidInput(room) {
+  const me_info = room.players.find(p => p.name === me.name);
+  const color   = me_info ? me_info.color : '#888';
+  const isMask  = document.getElementById('mask-toggle').checked;
+  const t       = isMask ? 'password' : 'text';
+  document.getElementById('bid-input-area').innerHTML = `
+    <div class="bid-row">
+      <div class="bid-name" style="color:${color}">${me.name}</div>
+      <input type="${t}" id="my-bid" placeholder="母馬名を入力" class="bid-input" style="flex:1">
+    </div>`;
+  const submitted = Object.keys(room.bids||{}).length;
+  document.getElementById('bid-progress').textContent =
+    `${submitted}/${room.players.length}名が提出済み`;
+}
+
+function toggleMask() {
+  const t = document.getElementById('mask-toggle').checked ? 'password' : 'text';
+  document.querySelectorAll('.bid-input').forEach(el => el.type = t);
+}
+
+// ── 提出済み待機描画 ───────────────────────────────────────
+function renderWaitingProgress(room) {
+  const bids  = room.bids || {};
+  const total = room.players.length;
+  const done  = Object.keys(bids).length;
+  document.getElementById('waiting-msg').textContent = `他の参加者を待っています (${done}/${total}名完了)`;
+  document.getElementById('submitted-progress').innerHTML = room.players.map(p =>
+    `<span class="badge ${bids[p.name]!==undefined?'badge-green':'badge-yellow'}" style="margin:2px">
+      ${p.name} ${bids[p.name]!==undefined?'✓':'…'}
+    </span>`
+  ).join('');
+}
+
+// ── 指名確定 ───────────────────────────────────────────────
+async function submitBid() {
+  const val = document.getElementById('my-bid')?.value?.trim();
+  if (!val) { toast('母馬名を入力してください'); return; }
+
+  document.getElementById('btn-submit').disabled = true;
+
+  const snap = await roomRef.get();
+  const room = snap.val();
+  const bids = room.bids || {};
+  bids[me.name] = val;
+
+  // 全員提出済みか？
+  const allDone = room.players.every(p => bids[p.name] !== undefined);
+  const update  = { bids };
+
+  if (allDone) {
+    // サーバー側で競合チェック（最後に提出した人が計算）
+    const result = calcReveal(room.players, bids, room.rosters || {});
+    update.rosters    = result.rosters;
+    update.conflicts  = result.conflicts;
+    update.resolvedConflicts = {};
+    update.phase      = result.conflicts.length > 0 ? 'conflict' : 'reveal';
+  }
+
+  await roomRef.update(update);
+
+  document.getElementById('phase-input').style.display   = 'none';
+  document.getElementById('phase-waiting').style.display = '';
+}
+
+// ── 公開計算 ───────────────────────────────────────────────
+function calcReveal(players, bids, rosters) {
+  const horseMap = {};
+  for (const [player, horse] of Object.entries(bids)) {
+    if (!horseMap[horse]) horseMap[horse] = [];
+    horseMap[horse].push(player);
+  }
+  const newRosters = JSON.parse(JSON.stringify(rosters));
+  const conflicts  = [];
+  for (const [horse, bidders] of Object.entries(horseMap)) {
+    if (bidders.length === 1) {
+      if (!newRosters[bidders[0]]) newRosters[bidders[0]] = [];
+      newRosters[bidders[0]].push(horse);
+    } else {
+      conflicts.push({ horse, bidders });
+    }
+  }
+  return { rosters: newRosters, conflicts };
+}
+
+// ── 公開画面描画 ───────────────────────────────────────────
+function renderReveal(room) {
+  const bids = room.bids || {};
+  const horseMap = {};
+  for (const [p, h] of Object.entries(bids)) {
+    if (!horseMap[h]) horseMap[h] = [];
+    horseMap[h].push(p);
+  }
+
+  let html = '';
+  for (const [horse, bidders] of Object.entries(horseMap)) {
+    const ok = bidders.length === 1;
+    html += `<div class="result-item ${ok?'result-ok':'result-ng'}">
+      <div class="result-horse">${ok?'✅':'🚨'} ${horse}</div>
+      <div class="result-bidders">${bidders.join('、')}</div>
+    </div>`;
+  }
+  document.getElementById('reveal-results').innerHTML = html;
+
+  // 競合解決UI
+  const conflicts = room.conflicts || [];
+  const resolved  = room.resolvedConflicts || {};
+  const pending   = conflicts.filter(c => !resolved[c.horse]);
+  let cHtml = '';
+  if (pending.length > 0) {
+    cHtml = '<div style="margin-top:14px"><p style="font-size:13px;font-weight:600;color:#b91c1c;margin-bottom:8px">⚔️ 競合馬の勝者をじゃんけんで決めてください</p>';
+    pending.forEach(c => {
+      cHtml += `<div class="conflict-box">
+        <h4>「${c.horse}」— ${c.bidders.length}名が競合</h4>
+        <div class="conflict-winner-btns">
+          ${c.bidders.map(b => `<button class="btn btn-outline" style="font-size:12px;padding:7px 12px" onclick="resolveConflict('${c.horse}','${b}')">${b} の勝利</button>`).join('')}
+        </div>
+      </div>`;
+    });
+    cHtml += '</div>';
+  }
+  document.getElementById('conflict-area').innerHTML = cHtml;
+
+  const allResolved = conflicts.every(c => resolved[c.horse]);
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.style.display = (conflicts.length === 0 || allResolved) ? '' : 'none';
+  nextBtn.textContent = room.round >= room.maxRounds ? '🏆 最終結果を見る' : `第${room.round+1}巡目へ →`;
+}
+
+// ── 競合解決 ───────────────────────────────────────────────
+async function resolveConflict(horse, winner) {
+  const snap = await roomRef.get();
+  const room = snap.val();
+  const resolved = room.resolvedConflicts || {};
+  resolved[horse] = winner;
+
+  const rosters = room.rosters || {};
+  if (!rosters[winner]) rosters[winner] = [];
+  rosters[winner].push(horse);
+
+  const pending = (room.conflicts||[]).filter(c => !resolved[c.horse]);
+  const newPhase = pending.length === 0 ? 'reveal' : 'conflict';
+
+  await roomRef.update({ resolvedConflicts: resolved, rosters, phase: newPhase });
+  toast(`${winner} が「${horse}」を獲得！`);
+}
+
+// ── 次ラウンド ─────────────────────────────────────────────
+async function proceedNext() {
+  const snap = await roomRef.get();
+  const room = snap.val();
+  if (room.round >= room.maxRounds) {
+    await roomRef.update({ status: 'finished' });
+  } else {
+    await roomRef.update({
+      round: room.round + 1, phase: 'input',
+      bids: {}, conflicts: [], resolvedConflicts: {}
+    });
+  }
+}
+
+// ── ロスターボード ─────────────────────────────────────────
+function renderRosterBoard(room, elId) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  const players = room.players || [];
+  const rosters = room.rosters || {};
+  el.innerHTML = players.map(p => {
+    const list = rosters[p.name] || [];
+    let rows = '';
+    for (let i = 0; i < room.maxRounds; i++) {
+      rows += `<div class="roster-row ${list[i]?'':'empty'}">${list[i] || `${i+1}巡`}</div>`;
+    }
+    return `<div class="roster-col">
+      <div class="roster-head" style="color:${p.color}">${p.name}</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+function renderFinalRoster(room) { renderRosterBoard(room, 'final-roster'); }
+
+// ── リセット ───────────────────────────────────────────────
+function resetApp() {
+  if (unsubscribe) unsubscribe();
+  me = { name: '', roomCode: '', isHost: false };
+  lastSnapshot = null;
+  showScreen('lobby');
+}
+
+// ── 起動 ───────────────────────────────────────────────────
+window.onload = () => initFirebase();
+</script>
+</body>
+</html>
