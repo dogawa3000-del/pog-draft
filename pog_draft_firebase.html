@@ -656,10 +656,11 @@ function renderReveal(room) {
     });
     const uniqueLosers = [...new Set(losers)];
     if (uniqueLosers.length > 0) {
+      window._pendingRebidPlayers = uniqueLosers;
       waitingRebid.innerHTML = `<div class="rebid-box">
         <h4>🔄 外れ指名 — 以下の方は別の母馬を指名してください</h4>
         <p style="font-size:13px;margin-bottom:8px">${uniqueLosers.join('、')}</p>
-        <button class="btn btn-primary btn-full" onclick="startRebid(${JSON.stringify(uniqueLosers)})">外れ指名を開始する</button>
+        <button class="btn btn-primary btn-full" onclick="startRebid()">外れ指名を開始する</button>
       </div>`;
       nextBtn.style.display = 'none';
       return;
@@ -670,7 +671,8 @@ function renderReveal(room) {
   nextBtn.textContent = room.round >= room.maxRounds ? '🏆 最終結果を見る' : `第${room.round+1}巡目へ →`;
 }
 
-async function startRebid(losers) {
+async function startRebid() {
+  const losers = window._pendingRebidPlayers || [];
   // bidsから敗者のエントリーを消して再入力フェーズへ
   const snap = await roomRef.get();
   const room = snap.val();
