@@ -553,9 +553,13 @@ async function submitBid() {
   const snap = await roomRef.get();
   const room = snap.val();
 
-  // 既に誰かが確定している馬は指名不可
+  // 既に確定済みの馬（過去巡のロスター）＋今巡で他の人が入力済みの馬も弾く
   const allNominated = Object.values(room.rosters || {}).flat();
-  if (allNominated.includes(val)) {
+  const currentBidValues = Object.entries(room.bids || {})
+    .filter(([k]) => k !== me.name)
+    .map(([, v]) => v);
+  const allTaken = [...allNominated, ...currentBidValues];
+  if (allTaken.includes(val)) {
     toast(`「${val}」はすでに指名されています！`);
     btn.disabled = false;
     return;
