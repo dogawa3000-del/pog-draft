@@ -45,22 +45,16 @@ const FIREBASE_CONFIG = {
     min-height: 100vh; padding: 16px;
   }
   .app { max-width: 720px; margin: 0 auto; }
-
-  /* ヘッダー */
   .header { text-align: center; padding: 24px 0 16px; }
   .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
   .header h1 span { color: var(--accent); }
   .header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-  /* カード */
   .card {
     background: var(--surface); border-radius: var(--radius);
     border: 1px solid var(--border); box-shadow: var(--shadow);
     padding: 20px; margin-bottom: 16px;
   }
   .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
-
-  /* フォーム */
   .field { margin-bottom: 14px; }
   .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
   input[type="text"], input[type="password"], select {
@@ -70,8 +64,6 @@ const FIREBASE_CONFIG = {
     background: #fafafa; transition: border-color 0.15s;
   }
   input:focus, select:focus { outline: none; border-color: var(--accent); background: #fff; }
-
-  /* ボタン */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 6px;
     padding: 11px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
@@ -82,13 +74,10 @@ const FIREBASE_CONFIG = {
   .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
   .btn-primary:hover { background: #12a880; }
   .btn-secondary { background: var(--primary); color: #fff; border-color: var(--primary); }
-  .btn-danger { background: var(--accent2); color: #fff; border-color: var(--accent2); }
   .btn-outline { background: transparent; color: var(--primary); border-color: var(--border); }
   .btn-outline:hover { background: var(--bg); }
   .btn-full { width: 100%; }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-
-  /* タブ */
   .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
   .tab-btn {
     flex: 1; padding: 10px; font-size: 14px; font-weight: 600;
@@ -97,22 +86,17 @@ const FIREBASE_CONFIG = {
     margin-bottom: -2px; font-family: inherit; transition: all 0.15s;
   }
   .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  /* ルームコード */
   .room-code {
     font-size: 42px; font-weight: 800; letter-spacing: 10px; text-align: center;
     color: var(--primary); padding: 18px; background: var(--bg);
     border-radius: var(--radius); margin: 10px 0;
     font-variant-numeric: tabular-nums; border: 2px dashed var(--border);
   }
-
-  /* 参加者チップ */
   .players-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; margin: 12px 0; }
   .player-chip {
     display: flex; align-items: center; gap: 8px;
     padding: 8px 12px; border-radius: 8px;
-    border: 1px solid var(--border); background: var(--bg);
-    font-size: 13px;
+    border: 1px solid var(--border); background: var(--bg); font-size: 13px;
   }
   .player-chip.empty { opacity: 0.4; }
   .avatar {
@@ -120,66 +104,38 @@ const FIREBASE_CONFIG = {
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; flex-shrink: 0;
   }
-
-  /* バッジ */
-  .badge {
-    display: inline-block; font-size: 11px; font-weight: 600;
-    padding: 2px 8px; border-radius: 20px;
-  }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
   .badge-green  { background: #d1fae5; color: #065f46; }
   .badge-blue   { background: #dbeafe; color: #1e40af; }
   .badge-yellow { background: #fef3c7; color: #92400e; }
   .badge-red    { background: #fee2e2; color: #991b1b; }
-
-  /* ラウンドドット */
   .round-dots { display: flex; gap: 5px; flex-wrap: wrap; }
   .round-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); }
   .round-dot.done    { background: var(--accent); }
   .round-dot.current { background: var(--primary); }
-
-  /* 指名入力 */
   .bid-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
   .bid-row:last-child { border-bottom: none; }
   .bid-name { width: 72px; font-size: 13px; font-weight: 600; flex-shrink: 0; }
-
-  /* 公開結果 */
-  .result-item {
-    padding: 10px 14px; border-radius: 8px; margin-bottom: 6px;
-    border: 1.5px solid; font-size: 13px;
-  }
+  .result-item { padding: 10px 14px; border-radius: 8px; margin-bottom: 6px; border: 1.5px solid; font-size: 13px; }
   .result-ok   { background: #f0fdf4; border-color: #86efac; }
   .result-ng   { background: #fff1f2; border-color: #fda4af; }
   .result-horse { font-weight: 700; font-size: 15px; }
   .result-bidders { color: var(--muted); margin-top: 2px; }
-
-  /* 競合 */
   .conflict-box { background: #fff1f2; border: 1.5px solid #fca5a5; border-radius: 10px; padding: 14px; margin-bottom: 8px; }
   .conflict-box h4 { font-size: 13px; color: #b91c1c; margin-bottom: 8px; }
   .conflict-winner-btns { display: flex; flex-wrap: wrap; gap: 6px; }
-
-  /* ロスター */
+  .rebid-box { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 10px; padding: 14px; margin-top: 12px; }
+  .rebid-box h4 { font-size: 13px; color: #92400e; margin-bottom: 8px; }
   .roster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
   .roster-col { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
   .roster-head { padding: 7px 8px; font-size: 12px; font-weight: 700; text-align: center; background: var(--bg); }
   .roster-row { padding: 5px 8px; font-size: 12px; border-top: 1px solid var(--border); }
   .roster-row.empty { color: #c4c4c4; font-style: italic; }
-
-  /* 待機アニメ */
   .waiting-icon { font-size: 36px; text-align: center; animation: pulse 1.5s ease-in-out infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-  /* 進捗表示 */
-  .submitted-progress {
-    margin-top: 10px; padding: 10px 14px; border-radius: 8px;
-    background: var(--bg); border: 1px solid var(--border);
-    font-size: 13px;
-  }
-
-  /* スクリーン */
+  .submitted-progress { margin-top: 10px; padding: 10px 14px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); font-size: 13px; }
   .screen { display: none; }
   .screen.active { display: block; }
-
-  /* トースト */
   #toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px);
     background: var(--primary); color: #fff;
@@ -189,14 +145,10 @@ const FIREBASE_CONFIG = {
     box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   }
   #toast.show { transform: translateX(-50%) translateY(0); }
-
-  /* 終了 */
   .finish-hero { text-align: center; padding: 28px 0 20px; }
   .finish-hero .trophy { font-size: 56px; }
   .finish-hero h2 { font-size: 22px; font-weight: 700; margin-top: 10px; }
   .finish-hero p { color: var(--muted); font-size: 14px; margin-top: 4px; }
-
-  /* セットアップ未完了バナー */
   #setup-warning {
     background: #fff3cd; border: 1.5px solid #ffc107;
     border-radius: var(--radius); padding: 14px 18px;
@@ -215,12 +167,10 @@ const FIREBASE_CONFIG = {
     <p>リアルタイム対戦ボード</p>
   </div>
 
-  <!-- Firebaseミス設定の警告 -->
   <div id="setup-warning" style="display:none">
     <strong>⚠️ Firebase の設定が必要です</strong>
     このファイルの先頭にある <code>FIREBASE_CONFIG</code> の <code>YOUR_...</code> の部分を
-    自分のFirebaseプロジェクトの値に書き換えてください。<br>
-    設定方法は別紙の手順書をご参照ください。
+    自分のFirebaseプロジェクトの値に書き換えてください。
   </div>
 
   <!-- ① ロビー画面 -->
@@ -230,7 +180,6 @@ const FIREBASE_CONFIG = {
         <button class="tab-btn active" id="tab-create" onclick="switchTab('create')">ルームを作成</button>
         <button class="tab-btn"        id="tab-join"   onclick="switchTab('join')">ルームに参加</button>
       </div>
-
       <div id="pane-create">
         <div class="field">
           <label>あなたの名前</label>
@@ -256,7 +205,6 @@ const FIREBASE_CONFIG = {
         </div>
         <button class="btn btn-primary btn-full" onclick="createRoom()">🎯 ルームを作成する</button>
       </div>
-
       <div id="pane-join" style="display:none">
         <div class="field">
           <label>あなたの名前</label>
@@ -295,7 +243,6 @@ const FIREBASE_CONFIG = {
 
   <!-- ③ ドラフト画面 -->
   <div id="screen-draft" class="screen">
-    <!-- ラウンドヘッダー -->
     <div class="card" style="padding:14px 20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div>
@@ -306,11 +253,10 @@ const FIREBASE_CONFIG = {
       </div>
     </div>
 
-    <!-- アクションエリア -->
     <div class="card" id="action-card">
       <!-- 入力フェーズ（未提出） -->
       <div id="phase-input">
-        <div class="card-title">母馬を指名してください</div>
+        <div class="card-title" id="input-title">母馬を指名してください</div>
         <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:12px;cursor:pointer">
           <input type="checkbox" id="mask-toggle" onchange="toggleMask()">
           入力文字を隠す（周りに見えないように）
@@ -331,16 +277,16 @@ const FIREBASE_CONFIG = {
 
       <!-- 公開フェーズ -->
       <div id="phase-reveal" style="display:none">
-        <div class="card-title" id="reveal-title">🎊 一斉公開！</div>
+        <div class="card-title">🎊 一斉公開！</div>
         <div id="reveal-results"></div>
         <div id="conflict-area"></div>
+        <div id="rebid-area"></div>
         <button class="btn btn-secondary btn-full" id="btn-next" onclick="proceedNext()" style="margin-top:14px;display:none">
           次のラウンドへ →
         </button>
       </div>
     </div>
 
-    <!-- ロスターボード -->
     <div class="card">
       <div class="card-title">📋 指名状況ボード</div>
       <div class="roster-grid" id="roster-board"></div>
@@ -362,20 +308,17 @@ const FIREBASE_CONFIG = {
     </div>
     <button class="btn btn-outline btn-full" onclick="resetApp()">🔄 最初に戻る</button>
   </div>
-</div><!-- /app -->
+</div>
 
 <script>
-// ── カラーパレット ──────────────────────────────────────────
 const COLORS = ['#16c79a','#e94560','#4f8ef7','#f5a623','#a855f7','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4'];
 
-// ── 状態 ──────────────────────────────────────────────────
 let me = { name: '', roomCode: '', isHost: false };
 let db = null;
 let roomRef = null;
 let unsubscribe = null;
 let lastSnapshot = null;
 
-// ── Firebase 初期化 ────────────────────────────────────────
 function initFirebase() {
   if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
     document.getElementById('setup-warning').style.display = 'block';
@@ -391,7 +334,6 @@ function initFirebase() {
   }
 }
 
-// ── ユーティリティ ─────────────────────────────────────────
 function genCode() { return String(Math.floor(1000 + Math.random() * 9000)); }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -410,7 +352,6 @@ function switchTab(t) {
   document.getElementById('pane-join').style.display   = t==='join'   ? '' : 'none';
 }
 
-// ── ルーム作成 ─────────────────────────────────────────────
 async function createRoom() {
   if (!db) { toast('Firebase が設定されていません'); return; }
   const name = document.getElementById('create-name').value.trim();
@@ -418,7 +359,6 @@ async function createRoom() {
   const count  = parseInt(document.getElementById('create-count').value);
   const rounds = parseInt(document.getElementById('create-rounds').value);
   const code   = genCode();
-
   const room = {
     code, hostName: name,
     playerCount: count, maxRounds: rounds,
@@ -426,40 +366,35 @@ async function createRoom() {
     rosters: { [name]: [] },
     status: 'waiting',
     round: 1, phase: 'input',
-    bids: {}, conflicts: [], resolvedConflicts: {}
+    bids: {}, conflicts: [], resolvedConflicts: {},
+    rebidPlayers: []
   };
-
   await db.ref('pog/rooms/' + code).set(room);
   me = { name, roomCode: code, isHost: true };
   subscribeRoom(code);
   showScreen('waiting');
 }
 
-// ── ルーム参加 ─────────────────────────────────────────────
 async function joinRoom() {
   if (!db) { toast('Firebase が設定されていません'); return; }
   const name = document.getElementById('join-name').value.trim();
   const code = document.getElementById('join-code').value.trim();
   if (!name) { toast('名前を入力してください'); return; }
   if (code.length !== 4) { toast('4桁のコードを入力してください'); return; }
-
   const snap = await db.ref('pog/rooms/' + code).get();
   if (!snap.exists()) { toast('ルームが見つかりません'); return; }
   const room = snap.val();
   if (room.status !== 'waiting') { toast('このルームはすでに開始しています'); return; }
   if (room.players.find(p => p.name === name)) { toast('同じ名前の参加者がいます'); return; }
   if (room.players.length >= room.playerCount) { toast('ルームが満員です'); return; }
-
   const newPlayers = [...room.players, { name, color: COLORS[room.players.length % COLORS.length] }];
   const newRosters = { ...room.rosters, [name]: [] };
   await db.ref('pog/rooms/' + code).update({ players: newPlayers, rosters: newRosters });
-
   me = { name, roomCode: code, isHost: false };
   subscribeRoom(code);
   showScreen('waiting');
 }
 
-// ── リアルタイム購読 ───────────────────────────────────────
 function subscribeRoom(code) {
   if (unsubscribe) unsubscribe();
   roomRef = db.ref('pog/rooms/' + code);
@@ -475,14 +410,9 @@ function subscribeRoom(code) {
   unsubscribe = () => roomRef.off('value', handler);
 }
 
-// ── ルーム状態の反映 ───────────────────────────────────────
 function handleRoomUpdate(room) {
   const current = document.querySelector('.screen.active')?.id || '';
-
-  if (room.status === 'waiting') {
-    renderWaiting(room);
-    return;
-  }
+  if (room.status === 'waiting') { renderWaiting(room); return; }
   if (room.status === 'drafting') {
     if (current !== 'screen-draft') showScreen('draft');
     renderDraft(room);
@@ -494,13 +424,11 @@ function handleRoomUpdate(room) {
   }
 }
 
-// ── 待機室描画 ─────────────────────────────────────────────
 function renderWaiting(room) {
   const count = room.players.length;
   const max   = room.playerCount;
   document.getElementById('waiting-code').textContent = room.code;
   document.getElementById('waiting-count-badge').textContent = `${count}/${max}名`;
-
   const grid = document.getElementById('waiting-players');
   grid.innerHTML = room.players.map(p =>
     `<div class="player-chip">
@@ -514,7 +442,6 @@ function renderWaiting(room) {
       <span style="font-size:13px;color:#d1d5db">待機中...</span>
     </div>`
   ).join('');
-
   if (me.isHost) {
     document.getElementById('host-controls').style.display = '';
     const btn = document.getElementById('btn-start');
@@ -523,14 +450,11 @@ function renderWaiting(room) {
   }
 }
 
-// ── ドラフト開始（ホストのみ）──────────────────────────────
 async function hostStartDraft() {
-  await roomRef.update({ status: 'drafting', phase: 'input', bids: {}, round: 1 });
+  await roomRef.update({ status: 'drafting', phase: 'input', bids: {}, round: 1, rebidPlayers: [] });
 }
 
-// ── ドラフト画面描画 ───────────────────────────────────────
 function renderDraft(room) {
-  // ラウンドドット
   const dots = document.getElementById('round-dots');
   dots.innerHTML = Array(room.maxRounds).fill(0).map((_, i) => {
     const cls = i < room.round-1 ? 'done' : i === room.round-1 ? 'current' : '';
@@ -538,23 +462,39 @@ function renderDraft(room) {
   }).join('');
   document.getElementById('round-label').textContent = `第${room.round}巡目`;
 
-  // フェーズ
   const bids = room.bids || {};
-  const mySubmitted = bids[me.name] !== undefined;
+  const rebidPlayers = room.rebidPlayers || [];
+
+  // 今このユーザーが入力すべきか判定
+  // 通常入力：bidsにまだ自分のエントリーがない
+  // 外れ再指名：rebidPlayersに自分が含まれ、bidsにまだ自分のエントリーがない
+  const needsInput = bids[me.name] === undefined;
+  const isRebidPhase = rebidPlayers.length > 0;
+  const iAmRebidder = rebidPlayers.includes(me.name);
 
   document.getElementById('phase-input').style.display   = 'none';
   document.getElementById('phase-waiting').style.display = 'none';
   document.getElementById('phase-reveal').style.display  = 'none';
 
   if (room.phase === 'input') {
-    document.getElementById('phase-badge').textContent = '入力中';
-    document.getElementById('phase-badge').className = 'badge badge-blue';
-    if (!mySubmitted) {
-      document.getElementById('phase-input').style.display = '';
-      renderBidInput(room);
-    } else {
+    document.getElementById('phase-badge').textContent = isRebidPhase ? '外れ再指名' : '入力中';
+    document.getElementById('phase-badge').className = 'badge ' + (isRebidPhase ? 'badge-yellow' : 'badge-blue');
+
+    if (isRebidPhase && !iAmRebidder) {
+      // 自分は再指名不要 → 待機表示
       document.getElementById('phase-waiting').style.display = '';
-      renderWaitingProgress(room);
+      renderWaitingProgress(room, rebidPlayers);
+    } else if (needsInput && (!isRebidPhase || iAmRebidder)) {
+      // 自分が入力すべき
+      document.getElementById('phase-input').style.display = '';
+      // ボタンを必ず有効化
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = false;
+      renderBidInput(room, isRebidPhase);
+    } else {
+      // 提出済み → 待機
+      document.getElementById('phase-waiting').style.display = '';
+      renderWaitingProgress(room, isRebidPhase ? rebidPlayers : room.players.map(p=>p.name));
     }
   } else if (room.phase === 'reveal' || room.phase === 'conflict') {
     document.getElementById('phase-badge').textContent = room.phase === 'conflict' ? '競合解決中' : '公開中';
@@ -566,20 +506,22 @@ function renderDraft(room) {
   renderRosterBoard(room, 'roster-board');
 }
 
-// ── 指名入力描画 ───────────────────────────────────────────
-function renderBidInput(room) {
+function renderBidInput(room, isRebid) {
   const me_info = room.players.find(p => p.name === me.name);
   const color   = me_info ? me_info.color : '#888';
   const isMask  = document.getElementById('mask-toggle').checked;
   const t       = isMask ? 'password' : 'text';
+  document.getElementById('input-title').textContent = isRebid ? '🔄 外れ指名 — 別の母馬を指名してください' : '母馬を指名してください';
   document.getElementById('bid-input-area').innerHTML = `
     <div class="bid-row">
       <div class="bid-name" style="color:${color}">${me.name}</div>
       <input type="${t}" id="my-bid" placeholder="母馬名を入力" class="bid-input" style="flex:1">
     </div>`;
-  const submitted = Object.keys(room.bids||{}).length;
-  document.getElementById('bid-progress').textContent =
-    `${submitted}/${room.players.length}名が提出済み`;
+  const rebidPlayers = room.rebidPlayers || [];
+  const bids = room.bids || {};
+  const targetPlayers = isRebid ? rebidPlayers : room.players.map(p=>p.name);
+  const submitted = targetPlayers.filter(n => bids[n] !== undefined).length;
+  document.getElementById('bid-progress').textContent = `${submitted}/${targetPlayers.length}名が提出済み`;
 }
 
 function toggleMask() {
@@ -587,42 +529,47 @@ function toggleMask() {
   document.querySelectorAll('.bid-input').forEach(el => el.type = t);
 }
 
-// ── 提出済み待機描画 ───────────────────────────────────────
-function renderWaitingProgress(room) {
+function renderWaitingProgress(room, targetPlayerNames) {
   const bids  = room.bids || {};
-  const total = room.players.length;
-  const done  = Object.keys(bids).length;
-  document.getElementById('waiting-msg').textContent = `他の参加者を待っています (${done}/${total}名完了)`;
-  document.getElementById('submitted-progress').innerHTML = room.players.map(p =>
-    `<span class="badge ${bids[p.name]!==undefined?'badge-green':'badge-yellow'}" style="margin:2px">
-      ${p.name} ${bids[p.name]!==undefined?'✓':'…'}
+  const players = Array.isArray(targetPlayerNames)
+    ? targetPlayerNames
+    : room.players.map(p => p.name);
+  const done  = players.filter(n => bids[n] !== undefined).length;
+  document.getElementById('waiting-msg').textContent = `他の参加者を待っています (${done}/${players.length}名完了)`;
+  document.getElementById('submitted-progress').innerHTML = players.map(n =>
+    `<span class="badge ${bids[n]!==undefined?'badge-green':'badge-yellow'}" style="margin:2px">
+      ${n} ${bids[n]!==undefined?'✓':'…'}
     </span>`
   ).join('');
 }
 
-// ── 指名確定 ───────────────────────────────────────────────
 async function submitBid() {
   const val = document.getElementById('my-bid')?.value?.trim();
   if (!val) { toast('母馬名を入力してください'); return; }
 
-  document.getElementById('btn-submit').disabled = true;
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = true;
 
   const snap = await roomRef.get();
   const room = snap.val();
   const bids = room.bids || {};
+  const rebidPlayers = room.rebidPlayers || [];
+  const isRebidPhase = rebidPlayers.length > 0;
+
   bids[me.name] = val;
 
-  // 全員提出済みか？
-  const allDone = room.players.every(p => bids[p.name] !== undefined);
-  const update  = { bids };
+  // 今回入力すべき人全員が揃ったか
+  const targetPlayers = isRebidPhase ? rebidPlayers : room.players.map(p => p.name);
+  const allDone = targetPlayers.every(n => bids[n] !== undefined);
+  const update = { bids };
 
   if (allDone) {
-    // サーバー側で競合チェック（最後に提出した人が計算）
-    const result = calcReveal(room.players, bids, room.rosters || {});
+    const result = calcReveal(targetPlayers, bids, room.rosters || {});
     update.rosters    = result.rosters;
     update.conflicts  = result.conflicts;
     update.resolvedConflicts = {};
     update.phase      = result.conflicts.length > 0 ? 'conflict' : 'reveal';
+    update.rebidPlayers = [];
   }
 
   await roomRef.update(update);
@@ -631,12 +578,13 @@ async function submitBid() {
   document.getElementById('phase-waiting').style.display = '';
 }
 
-// ── 公開計算 ───────────────────────────────────────────────
-function calcReveal(players, bids, rosters) {
+function calcReveal(targetPlayerNames, bids, rosters) {
   const horseMap = {};
-  for (const [player, horse] of Object.entries(bids)) {
+  for (const name of targetPlayerNames) {
+    const horse = bids[name];
+    if (!horse) continue;
     if (!horseMap[horse]) horseMap[horse] = [];
-    horseMap[horse].push(player);
+    horseMap[horse].push(name);
   }
   const newRosters = JSON.parse(JSON.stringify(rosters));
   const conflicts  = [];
@@ -651,13 +599,18 @@ function calcReveal(players, bids, rosters) {
   return { rosters: newRosters, conflicts };
 }
 
-// ── 公開画面描画 ───────────────────────────────────────────
 function renderReveal(room) {
   const bids = room.bids || {};
+  const rebidPlayers = room.rebidPlayers || [];
+  const isRebidPhase = rebidPlayers.length > 0;
+  const targetPlayers = isRebidPhase ? rebidPlayers : room.players.map(p => p.name);
+
   const horseMap = {};
-  for (const [p, h] of Object.entries(bids)) {
+  for (const name of targetPlayers) {
+    const h = bids[name];
+    if (!h) continue;
     if (!horseMap[h]) horseMap[h] = [];
-    horseMap[h].push(p);
+    horseMap[h].push(name);
   }
 
   let html = '';
@@ -691,29 +644,62 @@ function renderReveal(room) {
 
   const allResolved = conflicts.every(c => resolved[c.horse]);
   const nextBtn = document.getElementById('btn-next');
+
+  // 再指名待ちの人がいる場合は「次へ」を出さない
+  const waitingRebid = document.getElementById('rebid-area');
+  if (allResolved && conflicts.length > 0) {
+    // 競合で負けた人を計算
+    const losers = [];
+    conflicts.forEach(c => {
+      const w = resolved[c.horse];
+      c.bidders.forEach(b => { if (b !== w) losers.push(b); });
+    });
+    const uniqueLosers = [...new Set(losers)];
+    if (uniqueLosers.length > 0) {
+      waitingRebid.innerHTML = `<div class="rebid-box">
+        <h4>🔄 外れ指名 — 以下の方は別の母馬を指名してください</h4>
+        <p style="font-size:13px;margin-bottom:8px">${uniqueLosers.join('、')}</p>
+        <button class="btn btn-primary btn-full" onclick="startRebid(${JSON.stringify(uniqueLosers)})">外れ指名を開始する</button>
+      </div>`;
+      nextBtn.style.display = 'none';
+      return;
+    }
+  }
+  waitingRebid.innerHTML = '';
   nextBtn.style.display = (conflicts.length === 0 || allResolved) ? '' : 'none';
   nextBtn.textContent = room.round >= room.maxRounds ? '🏆 最終結果を見る' : `第${room.round+1}巡目へ →`;
 }
 
-// ── 競合解決 ───────────────────────────────────────────────
+async function startRebid(losers) {
+  // bidsから敗者のエントリーを消して再入力フェーズへ
+  const snap = await roomRef.get();
+  const room = snap.val();
+  const bids = room.bids || {};
+  losers.forEach(n => delete bids[n]);
+  await roomRef.update({
+    phase: 'input',
+    bids,
+    conflicts: [],
+    resolvedConflicts: {},
+    rebidPlayers: losers
+  });
+  toast('外れ指名を開始します');
+}
+
 async function resolveConflict(horse, winner) {
   const snap = await roomRef.get();
   const room = snap.val();
   const resolved = room.resolvedConflicts || {};
   resolved[horse] = winner;
-
   const rosters = room.rosters || {};
   if (!rosters[winner]) rosters[winner] = [];
   rosters[winner].push(horse);
-
   const pending = (room.conflicts||[]).filter(c => !resolved[c.horse]);
   const newPhase = pending.length === 0 ? 'reveal' : 'conflict';
-
   await roomRef.update({ resolvedConflicts: resolved, rosters, phase: newPhase });
   toast(`${winner} が「${horse}」を獲得！`);
 }
 
-// ── 次ラウンド ─────────────────────────────────────────────
 async function proceedNext() {
   const snap = await roomRef.get();
   const room = snap.val();
@@ -722,12 +708,11 @@ async function proceedNext() {
   } else {
     await roomRef.update({
       round: room.round + 1, phase: 'input',
-      bids: {}, conflicts: [], resolvedConflicts: {}
+      bids: {}, conflicts: [], resolvedConflicts: {}, rebidPlayers: []
     });
   }
 }
 
-// ── ロスターボード ─────────────────────────────────────────
 function renderRosterBoard(room, elId) {
   const el = document.getElementById(elId);
   if (!el) return;
@@ -748,7 +733,6 @@ function renderRosterBoard(room, elId) {
 
 function renderFinalRoster(room) { renderRosterBoard(room, 'final-roster'); }
 
-// ── リセット ───────────────────────────────────────────────
 function resetApp() {
   if (unsubscribe) unsubscribe();
   me = { name: '', roomCode: '', isHost: false };
@@ -756,7 +740,6 @@ function resetApp() {
   showScreen('lobby');
 }
 
-// ── 起動 ───────────────────────────────────────────────────
 window.onload = () => initFirebase();
 </script>
 </body>
