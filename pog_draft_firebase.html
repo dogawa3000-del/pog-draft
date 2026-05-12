@@ -530,16 +530,26 @@ function renderDraft(room) {
     document.getElementById('phase-badge').textContent = isRebidPhase ? '外れ再指名' : '入力中';
     document.getElementById('phase-badge').className = 'badge ' + (isRebidPhase ? 'badge-yellow' : 'badge-blue');
 
+    const editingPlayer = room.editingPlayer || null;
+    const isEditPhase = !!editingPlayer;
+
     if (isRebidPhase && !iAmRebidder) {
       // 自分は再指名不要 → 待機表示
       document.getElementById('phase-waiting').style.display = '';
       renderWaitingProgress(room, rebidPlayers);
-    } else if (needsInput && (!isRebidPhase || iAmRebidder)) {
-      // 自分が入力すべき
+    } else if (isEditPhase && !needsInput) {
+      // 修正フェーズ：自分は提出済み → 待機
+      document.getElementById('phase-waiting').style.display = '';
+      renderWaitingProgress(room, room.players.map(p=>p.name));
+    } else if (needsInput) {
+      // 自分が入力すべき（通常 or 修正フェーズで自分以外）
       document.getElementById('phase-input').style.display = '';
-      // ボタンを必ず有効化
       const btn = document.getElementById('btn-submit');
       btn.disabled = false;
+      const title = isEditPhase
+        ? `✏️ ${editingPlayer}さんが入力を修正しました。再度入力してください`
+        : isRebidPhase ? '🔄 外れ指名 — 別の母馬を指名してください' : '母馬を指名してください';
+      document.getElementById('input-title').textContent = title;
       renderBidInput(room, isRebidPhase);
     } else {
       // 提出済み → 待機
@@ -629,6 +639,7 @@ async function submitBid() {
     update.resolvedConflicts = {};
     update.phase      = result.conflicts.length > 0 ? 'conflict' : 'reveal';
     update.rebidPlayers = [];
+    update.editingPlayer = null;
   }
 
   await roomRef.update(update);
@@ -807,13 +818,8 @@ async function confirmEdit() {
     return;
   }
 
-  const rebidPlayers = room.rebidPlayers || [];
-  const isRebidPhase = rebidPlayers.length > 0;
-  const targetPlayers = isRebidPhase ? rebidPlayers : room.players.map(p => p.name);
-
-  // bidsから全員分消して再入力フェーズへ（自分だけ新しい値をセット）
-  const newBids = {};
-  newBids[me.name] = normalizeHorse(val);
+  // 全員のbidsを消して再入力フェーズへ（修正者の新しい値だけ保持）
+  const newBids = { [me.name]: normalizeHorse(val) };
 
   await roomRef.update({
     phase: 'input',
@@ -821,7 +827,8 @@ async function confirmEdit() {
     conflicts: [],
     resolvedConflicts: {},
     rebidPlayers: [],
-    rebidCandidates: []
+    rebidCandidates: [],
+    editingPlayer: me.name
   });
   toast('入力を修正しました。他の参加者の再入力を待っています');
   document.getElementById('rebid-area').innerHTML = '';
