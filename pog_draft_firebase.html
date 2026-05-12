@@ -813,14 +813,7 @@ async function confirmEdit() {
   const snap = await roomRef.get();
   const room = snap.val();
 
-  // 確定済みロスターに同じ馬がないかチェック（現在自分が持っている馬は除外）
-  const currentHorse = window._editingCurrentHorse || '';
-  const allNominated = Object.values(room.rosters || {}).flat()
-    .filter(h => normalizeHorse(h) !== normalizeHorse(currentHorse));
-  if (allNominated.some(h => normalizeHorse(h) === normalizeHorse(val))) {
-    toast(`「${val}」はすでに指名されています！`);
-    return;
-  }
+  // 修正フェーズではロスターチェックをスキップ（競合は再公開後に判定）
 
   // ロスターから修正前の馬を削除
   const rosters = room.rosters || {};
