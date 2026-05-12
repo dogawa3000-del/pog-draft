@@ -680,9 +680,11 @@ function renderReveal(room) {
   let html = '';
   for (const [horse, bidders] of Object.entries(horseMap)) {
     const ok = bidders.length === 1;
+    const isMine = bidders.includes(me.name);
     html += `<div class="result-item ${ok?'result-ok':'result-ng'}">
       <div class="result-horse">${ok?'✅':'🚨'} ${horse}</div>
       <div class="result-bidders">${bidders.join('、')}</div>
+      ${isMine && (room.phase==='reveal'||room.phase==='conflict') ? `<button class="btn-edit" onclick="editMyBid()">✏️ 修正</button>` : ''}
     </div>`;
   }
   document.getElementById('reveal-results').innerHTML = html;
@@ -767,6 +769,62 @@ async function resolveConflict(horse, winner) {
   }
   await roomRef.update({ resolvedConflicts: resolved, rosters, phase: newPhase, rebidCandidates: newRebidPlayers });
   toast(`${winner} が「${horse}」を獲得！`);
+}
+
+// ── 公開後の入力修正 ──────────────────────────────────────
+function editMyBid() {
+  const editArea = document.getElementById('rebid-area');
+  const isMask = document.getElementById('mask-toggle').checked;
+  const t = isMask ? 'password' : 'text';
+  editArea.innerHTML = `<div class="edit-box">
+    <h4>✏️ 自分の入力を修正する</h4>
+    <p style="font-size:12px;color:#64748b;margin-bottom:8px">修正後、全員の入力が揃ったら再度一斉公開されます</p>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="${t}" id="edit-bid-input" placeholder="正しい母馬名を入力" class="bid-input" style="flex:1;margin:0">
+      <button class="btn btn-primary" style="white-space:nowrap;padding:10px 14px" onclick="confirmEdit()">確定</button>
+      <button class="btn btn-outline" style="white-space:nowrap;padding:10px 14px" onclick="cancelEdit()">キャンセル</button>
+    </div>
+  </div>`;
+  document.getElementById('btn-next').style.display = 'none';
+  document.getElementById('conflict-area').innerHTML = '';
+}
+
+function cancelEdit() {
+  document.getElementById('rebid-area').innerHTML = '';
+}
+
+async function confirmEdit() {
+  const val = document.getElementById('edit-bid-input')?.value?.trim();
+  if (!val) { toast('母馬名を入力してください'); return; }
+
+  const snap = await roomRef.get();
+  const room = snap.val();
+
+  // 確定済みロスターに同じ馬がないかチェック
+  const allNominated = Object.values(room.rosters || {}).flat();
+  if (allNominated.some(h => normalizeHorse(h) === normalizeHorse(val))) {
+    toast(`「${val}」はすでに指名されています！`);
+    return;
+  }
+
+  const rebidPlayers = room.rebidPlayers || [];
+  const isRebidPhase = rebidPlayers.length > 0;
+  const targetPlayers = isRebidPhase ? rebidPlayers : room.players.map(p => p.name);
+
+  // bidsから全員分消して再入力フェーズへ（自分だけ新しい値をセット）
+  const newBids = {};
+  newBids[me.name] = normalizeHorse(val);
+
+  await roomRef.update({
+    phase: 'input',
+    bids: newBids,
+    conflicts: [],
+    resolvedConflicts: {},
+    rebidPlayers: [],
+    rebidCandidates: []
+  });
+  toast('入力を修正しました。他の参加者の再入力を待っています');
+  document.getElementById('rebid-area').innerHTML = '';
 }
 
 async function proceedNext() {
