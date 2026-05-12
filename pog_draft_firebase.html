@@ -335,6 +335,27 @@ function initFirebase() {
 }
 
 function genCode() { return String(Math.floor(1000 + Math.random() * 9000)); }
+
+// 全角→半角に統一して比較用に正規化する
+function normalizeHorse(str) {
+  return str
+    .trim()
+    // 全角英数字→半角
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
+    // 全角スペース→半角
+    .replace(/　/g, ' ')
+    // 半角カタカナ→全角カタカナ
+    .replace(/[･-ﾟ]/g, s => {
+      const h = s.charCodeAt(0);
+      if (h === 0xFF70) return 'ー';
+      if (h >= 0xFF66 && h <= 0xFF6F) {
+        const map = {'ｦ':'ヲ','ｧ':'ァ','ｨ':'ィ','ｩ':'ゥ','ｪ':'ェ','ｫ':'ォ','ｬ':'ャ','ｭ':'ュ','ｮ':'ョ','ｯ':'ッ'};
+        return map[s] || s;
+      }
+      return String.fromCharCode(s.charCodeAt(0) - 0x60);
+    })
+    .toLowerCase();
+}
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + id).classList.add('active');
@@ -553,9 +574,9 @@ async function submitBid() {
   const snap = await roomRef.get();
   const room = snap.val();
 
-  // 確定済みの馬（ロスターに入っている馬）のみ弾く
+  // 確定済みの馬（ロスターに入っている馬）のみ弾く（全角半角統一して比較）
   const allNominated = Object.values(room.rosters || {}).flat();
-  if (allNominated.includes(val)) {
+  if (allNominated.some(h => normalizeHorse(h) === normalizeHorse(val))) {
     toast(`「${val}」はすでに指名されています！`);
     btn.disabled = false;
     return;
@@ -588,11 +609,16 @@ async function submitBid() {
 
 function calcReveal(targetPlayerNames, bids, rosters) {
   const horseMap = {};
+  // 正規化キーで同一馬判定、表示名は最初に入力した人のものを使う
+  const normalizeMap = {}; // 正規化キー → 最初の表示名
   for (const name of targetPlayerNames) {
     const horse = bids[name];
     if (!horse) continue;
-    if (!horseMap[horse]) horseMap[horse] = [];
-    horseMap[horse].push(name);
+    const key = normalizeHorse(horse);
+    if (!normalizeMap[key]) normalizeMap[key] = horse;
+    const displayHorse = normalizeMap[key];
+    if (!horseMap[displayHorse]) horseMap[displayHorse] = [];
+    horseMap[displayHorse].push(name);
   }
   const newRosters = JSON.parse(JSON.stringify(rosters));
   const conflicts  = [];
