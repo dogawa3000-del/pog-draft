@@ -336,25 +336,54 @@ function initFirebase() {
 
 function genCode() { return String(Math.floor(1000 + Math.random() * 9000)); }
 
-// 全角→半角に統一して比較用に正規化する
+// 全角・半角を統一して比較用に正規化する
 function normalizeHorse(str) {
-  return str
-    .trim()
-    // 全角英数字→半角
-    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
-    // 全角スペース→半角
-    .replace(/　/g, ' ')
-    // 半角カタカナ→全角カタカナ
-    .replace(/[･-ﾟ]/g, s => {
-      const h = s.charCodeAt(0);
-      if (h === 0xFF70) return 'ー';
-      if (h >= 0xFF66 && h <= 0xFF6F) {
-        const map = {'ｦ':'ヲ','ｧ':'ァ','ｨ':'ィ','ｩ':'ゥ','ｪ':'ェ','ｫ':'ォ','ｬ':'ャ','ｭ':'ュ','ｮ':'ョ','ｯ':'ッ'};
-        return map[s] || s;
+  if (!str) return '';
+  let s = str.trim();
+
+  // 半角カタカナ（濁点・半濁点込み）→ 全角カタカナ
+  const hankaku = 'ｦｧｨｩｪｫｬｭｮｯｰｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜﾝﾞﾟ';
+  const zenkaku = 'ヲァィゥェォャュョッーアイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワン゛゜';
+  // 濁点・半濁点付き文字の変換テーブル
+  const dakuten = {
+    'カ':'ガ','キ':'ギ','ク':'グ','ケ':'ゲ','コ':'ゴ',
+    'サ':'ザ','シ':'ジ','ス':'ズ','セ':'ゼ','ソ':'ゾ',
+    'タ':'ダ','チ':'ヂ','ツ':'ヅ','テ':'デ','ト':'ド',
+    'ハ':'バ','ヒ':'ビ','フ':'ブ','ヘ':'ベ','ホ':'ボ',
+    'ウ':'ヴ'
+  };
+  const handakuten = {
+    'ハ':'パ','ヒ':'ピ','フ':'プ','ヘ':'ペ','ホ':'ポ'
+  };
+
+  // まず半角カタカナを1文字ずつ全角に変換（濁点・半濁点は後処理）
+  let result = '';
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i];
+    const idx = hankaku.indexOf(c);
+    if (idx >= 0) {
+      const zen = zenkaku[idx];
+      if (zen === '゛' && result.length > 0) {
+        const prev = result[result.length - 1];
+        result = result.slice(0, -1) + (dakuten[prev] || prev + '゛');
+      } else if (zen === '゜' && result.length > 0) {
+        const prev = result[result.length - 1];
+        result = result.slice(0, -1) + (handakuten[prev] || prev + '゜');
+      } else {
+        result += zen;
       }
-      return String.fromCharCode(s.charCodeAt(0) - 0x60);
-    })
-    .toLowerCase();
+    } else {
+      result += c;
+    }
+  }
+  s = result;
+
+  // 全角英数字→半角
+  s = s.replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  // 全角スペース→半角
+  s = s.replace(/　/g, ' ');
+  // 小文字化
+  return s.toLowerCase();
 }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
