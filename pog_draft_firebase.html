@@ -614,7 +614,8 @@ async function submitBid() {
   const rebidPlayers = room.rebidPlayers || [];
   const isRebidPhase = rebidPlayers.length > 0;
 
-  bids[me.name] = val;
+  // 保存前に正規化（全角半角統一）
+  bids[me.name] = normalizeHorse(val);
 
   // 今回入力すべき人全員が揃ったか
   const targetPlayers = isRebidPhase ? rebidPlayers : room.players.map(p => p.name);
