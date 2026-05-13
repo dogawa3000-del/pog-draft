@@ -613,7 +613,8 @@ async function submitBid() {
   const snap = await roomRef.get();
   const room = snap.val();
 
-  // 確定済みの馬（ロスターに入っている馬）のみ弾く（全角半角統一して比較）
+  // 確定済みの馬（ロスターに入っている馬）のみ弾く
+  // editingPhase中はロスターがすでに巻き戻されているのでそのままチェック
   const allNominated = Object.values(room.rosters || {}).flat();
   if (allNominated.some(h => normalizeHorse(h) === normalizeHorse(val))) {
     toast(`「${val}」はすでに指名されています！`);
@@ -815,11 +816,14 @@ async function confirmEdit() {
 
   // 修正フェーズではロスターチェックをスキップ（競合は再公開後に判定）
 
-  // ロスターから修正前の馬を削除
+  // 今巡で確定した馬を全員のロスターから取り消す（再公開後に改めて確定）
   const rosters = room.rosters || {};
-  const currentHorse2 = window._editingCurrentHorse || '';
-  if (currentHorse2 && rosters[me.name]) {
-    rosters[me.name] = rosters[me.name].filter(h => normalizeHorse(h) !== normalizeHorse(currentHorse2));
+  const prevBids = room.bids || {};
+  // 今巡のbidsに入っている馬をロスターから削除
+  for (const [player, horse] of Object.entries(prevBids)) {
+    if (rosters[player] && horse) {
+      rosters[player] = rosters[player].filter(h => normalizeHorse(h) !== normalizeHorse(horse));
+    }
   }
 
   // 全員のbidsを消して再入力フェーズへ（修正者の新しい値だけ保持）
